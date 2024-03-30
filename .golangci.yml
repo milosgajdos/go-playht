@@ -12,6 +12,7 @@ linters:
     - errcheck
     - goimports
     - prealloc
+    - tparallel
 
 run:
   deadline: 2m

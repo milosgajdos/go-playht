@@ -16,13 +16,13 @@ jobs:
       matrix:
         os: [ ubuntu-latest ]
         go:
-          - '1.20'
           - '1.21'
+          - '1.22'
 
     steps:
 
     - name: Set up Go ${{ matrix.go }}
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
 
@@ -68,8 +68,8 @@ jobs:
       matrix:
         os: [ ubuntu-latest ]
         go:
-          - '1.20'
           - '1.21'
+          - '1.22'
 
     steps:
 
@@ -77,11 +77,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Go ${{ matrix.go }}
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
 
     - name: Run linter
-      uses: golangci/golangci-lint-action@v3
+      uses: golangci/golangci-lint-action@v4
       with:
-        version: v1.55
+        version: v1.56
