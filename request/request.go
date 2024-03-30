@@ -1,4 +1,4 @@
-package playht
+package request
 
 import (
 	"bytes"
@@ -6,13 +6,15 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/milosgajdos/go-playht/client"
 )
 
 // NewHTTP creates a new HTTP request from the provided parameters and returns it.
 // If the passed in context is nil, it creates a new background context.
 // If the provided body is nil, it gets initialized to bytes.Reader.
 // If no Content-Type has been set via options it defaults to application/json.
-func NewHTTPRequest(ctx context.Context, method, url string, body io.Reader, opts ...HTTPReqOption) (*http.Request, error) {
+func NewHTTP(ctx context.Context, method, url string, body io.Reader, opts ...HTTPOption) (*http.Request, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -38,7 +40,7 @@ func NewHTTPRequest(ctx context.Context, method, url string, body io.Reader, opt
 }
 
 // Do sends the HTTP request req using the client and returns the response.
-func Do[T error](client *HTTP, req *http.Request) (*http.Response, error) {
+func Do[T error](client *client.HTTP, req *http.Request) (*http.Response, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -49,18 +51,19 @@ func Do[T error](client *HTTP, req *http.Request) (*http.Response, error) {
 	defer resp.Body.Close()
 
 	var apiErr T
-	if err := json.NewDecoder(resp.Body).Decode(&apiErr); err != nil {
+	if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
+		// NOTE: return the original error
 		return nil, err
 	}
 
 	return nil, apiErr
 }
 
-// HTTPReqOption is HTTP request functional option.
-type HTTPReqOption func(*http.Request)
+// HTTPOption is HTTP request functional option.
+type HTTPOption func(*http.Request)
 
 // WithAuthSecret sets the Authorization header to the provided secret.
-func WithAuthSecret(secret string) HTTPReqOption {
+func WithAuthSecret(secret string) HTTPOption {
 	return func(req *http.Request) {
 		if req.Header == nil {
 			req.Header = make(http.Header)
@@ -70,7 +73,7 @@ func WithAuthSecret(secret string) HTTPReqOption {
 }
 
 // WithSetHeader sets the header key to value val.
-func WithSetHeader(key, val string) HTTPReqOption {
+func WithSetHeader(key, val string) HTTPOption {
 	return func(req *http.Request) {
 		if req.Header == nil {
 			req.Header = make(http.Header)
@@ -80,7 +83,7 @@ func WithSetHeader(key, val string) HTTPReqOption {
 }
 
 // WithAddHeader adds the val to key header.
-func WithAddHeader(key, val string) HTTPReqOption {
+func WithAddHeader(key, val string) HTTPOption {
 	return func(req *http.Request) {
 		if req.Header == nil {
 			req.Header = make(http.Header)
