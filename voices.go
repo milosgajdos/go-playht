@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"os"
 	"strings"
@@ -42,6 +44,7 @@ type ClonedVoice struct {
 type CloneVoiceFileRequest struct {
 	SampleFile string `json:"sample_file"`
 	VoiceName  string `json:"voice_name"`
+	MimeType   string `json:"mime_type"`
 }
 
 // CloneVoiceURLRequest is used to create a voice clone via file URL.
@@ -162,16 +165,14 @@ func (c *Client) CreateInstantVoiceCloneFromFile(ctx context.Context, cloneReq *
 
 	body := &bytes.Buffer{}
 	w := multipart.NewWriter(body)
-	// Write file into form writer
-	fw, err := w.CreateFormFile("sample_file", cloneReq.SampleFile)
+	fw, err := createFilePart(w, "sample_file", cloneReq.SampleFile, cloneReq.MimeType)
 	if err != nil {
 		return nil, err
 	}
 	if _, err = io.Copy(fw, f); err != nil {
 		return nil, err
 	}
-	// write voice name into form writer
-	fw, err = w.CreateFormField("voice_name")
+	fw, err = createFieldPart(w, "voice_name", "text/plain")
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +233,7 @@ func (c *Client) CreateInstantVoiceCloneFromURL(ctx context.Context, cloneReq *C
 		"voice_name":      strings.NewReader(cloneReq.VoiceName),
 	}
 	for field, data := range m {
-		fw, err := w.CreateFormField(field)
+		fw, err := createFieldPart(w, field, "text/plain")
 		if err != nil {
 			return nil, err
 		}
@@ -329,4 +330,27 @@ func (c *Client) DeleteClonedVoice(ctx context.Context, delReq *DeleteClonedVoic
 	default:
 		return nil, err
 	}
+}
+
+func createFilePart(w *multipart.Writer, fieldname, filename, mimeType string) (io.Writer, error) {
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			escapeQuotes(fieldname), escapeQuotes(filename)))
+	h.Set("Content-Type", mimeType)
+	return w.CreatePart(h)
+}
+
+func createFieldPart(w *multipart.Writer, fieldname, mimeType string) (io.Writer, error) {
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"`, escapeQuotes(fieldname)))
+	h.Set("Content-Type", mimeType)
+	return w.CreatePart(h)
+}
+
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
 }
