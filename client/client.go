@@ -1,4 +1,4 @@
-package playht
+package client
 
 import (
 	"context"
@@ -11,14 +11,14 @@ type HTTP struct {
 	limiter Limiter
 }
 
-// Options configure the HTTP client.
-type Options struct {
+// HTTPOptions configure the HTTP client.
+type HTTPOptions struct {
 	HTTPClient *http.Client
 	Limiter    Limiter
 }
 
-// Option is functional option.
-type Option func(*Options)
+// HTTPOption is HTTP client functional option.
+type HTTPOption func(*HTTPOptions)
 
 // Limiter is used to apply API rate limits.
 // NOTE: you can use off the shelf limiter from
@@ -38,8 +38,8 @@ func DefaultTransport() *http.Transport {
 }
 
 // NewHTTP creates a new HTTP client and returns it.
-func NewHTTP(opts ...Option) *HTTP {
-	options := Options{
+func NewHTTP(opts ...HTTPOption) *HTTP {
+	options := HTTPOptions{
 		HTTPClient: &http.Client{
 			Transport: DefaultTransport(),
 		},
@@ -70,15 +70,15 @@ func (h *HTTP) Do(req *http.Request) (*http.Response, error) {
 }
 
 // WithHTTPClient sets the HTTP client.
-func WithHTTPClient(c *http.Client) Option {
-	return func(o *Options) {
+func WithHTTPClient(c *http.Client) HTTPOption {
+	return func(o *HTTPOptions) {
 		o.HTTPClient = c
 	}
 }
 
 // WithLimiter sets the http rate limiter.
-func WithLimiter(l Limiter) Option {
-	return func(o *Options) {
+func WithLimiter(l Limiter) HTTPOption {
+	return func(o *HTTPOptions) {
 		o.Limiter = l
 	}
 }

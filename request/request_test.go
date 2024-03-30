@@ -1,4 +1,4 @@
-package playht
+package request
 
 import (
 	"bytes"
@@ -14,23 +14,23 @@ func TestNewHTTPRequest(t *testing.T) {
 	t.Run("nil context", func(t *testing.T) {
 		t.Parallel()
 		// nolint:staticcheck
-		req, err := NewHTTPRequest(nil, http.MethodGet, "http://foo.com", nil)
+		req, err := NewHTTP(nil, http.MethodGet, "http://foo.com", nil)
 		assert.NoError(t, err)
 		assert.NotNil(t, req.Context())
 	})
 	t.Run("nil body", func(t *testing.T) {
 		t.Parallel()
-		req, err := NewHTTPRequest(context.TODO(), http.MethodGet, "http://foo.com", nil)
+		req, err := NewHTTP(context.TODO(), http.MethodGet, "http://foo.com", nil)
 		assert.NoError(t, err)
 		assert.NotNil(t, req.Body)
 	})
 	t.Run("with options", func(t *testing.T) {
 		t.Parallel()
 		secret := "secret"
-		options := []HTTPReqOption{
+		options := []HTTPOption{
 			WithAuthSecret(secret),
 		}
-		req, err := NewHTTPRequest(context.TODO(), http.MethodGet, "http://foo.com", &bytes.Reader{}, options...)
+		req, err := NewHTTP(context.TODO(), http.MethodGet, "http://foo.com", &bytes.Reader{}, options...)
 		assert.NoError(t, err)
 		assert.NotNil(t, req.Body)
 
