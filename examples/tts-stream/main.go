@@ -4,24 +4,33 @@ import (
 	"context"
 	"flag"
 	"log"
+	"os"
 
 	"github.com/milosgajdos/go-playht"
 )
 
 var (
-	input string
+	input   string
+	outPath string
 )
 
 func init() {
 	flag.StringVar(&input, "input", "what is life?", "input text sample")
+	flag.StringVar(&outPath, "out", "", "Output file path")
 }
 
 func main() {
 	flag.Parse()
 
+	f, err := os.Create(outPath)
+	if err != nil {
+		log.Fatalf("failed creating file %s: %v", outPath, err)
+	}
+	defer f.Close()
+
 	// Creates an API client with default options.
 	// * it reads PLAYHT_SECRET_KEY and PLAYHT_USER_ID env vars
-	// * uses playht.BaserURL and APIv2
+	// * uses playht.BaserURL and APIv2 to create API endpoint URL
 	client := playht.NewClient()
 
 	voices, err := client.GetVoices(context.Background())
@@ -35,27 +44,19 @@ func main() {
 
 	voice := voices[0].ID
 
-	req := &playht.CreateTTSJobReq{
+	req := &playht.CreateTTSStreamReq{
 		Text:         input,
 		Voice:        voice,
 		Quality:      playht.Low,
 		OutputFormat: playht.Mp3,
 		Speed:        1.0,
 		SampleRate:   24000,
-		VoiceEngine:  playht.PlayHTv2,
+		VoiceEngine:  playht.PlayHTv2Turbo,
 	}
 
-	job, err := client.CreateTTSJob(context.Background(), req)
-	if err != nil {
-		log.Fatalf("failed to create a TTS job: %v", err)
+	if err := client.TTSStream(context.Background(), f, req); err != nil {
+		log.Fatalf("failed to stream into %s: %v", outPath, err)
 	}
 
-	log.Printf("successfully created a new TTS job: %#v", job)
-
-	jobInfo, err := client.GetTTSJob(context.Background(), job.ID)
-	if err != nil {
-		log.Fatalf("failed getting %v job info: %v", job.ID, err)
-	}
-
-	log.Printf("successfully got job info: %#v", jobInfo)
+	log.Printf("successfully streamed audio into: %s", outPath)
 }
