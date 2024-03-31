@@ -47,3 +47,7 @@ There are two ways to create audio/speech from the text using the API:
 * Stream: a real-time audio stream available immediately as soon as the stream has been created via the API
 
 The API also allows you to clone a voice using a small sample of limited size. See the [docs](https://docs.play.ht/reference/api-create-instant-voice-clone).
+
+# TODO
+
+* [ ] gRPC streaming

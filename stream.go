@@ -22,9 +22,9 @@ type CreateTTSStreamReq struct {
 	Emotion       Emotion      `json:"emotion,omitempty"`
 	SampleRate    int32        `json:"sample_rate"`
 	Seed          uint8        `json:"seed,omitempty"`
-	VoiceGuidance uint8        `json:"voice_guidance,omitempty"`
-	StyleGuidance uint8        `json:"style_guidance,omitempty"`
-	TextGuidance  uint8        `json:"text_guidance,omitempty"`
+	VoiceGuidance float32      `json:"voice_guidance,omitempty"`
+	StyleGuidance float32      `json:"style_guidance,omitempty"`
+	TextGuidance  float32      `json:"text_guidance,omitempty"`
 	Temperature   float32      `json:"temperature,omitempty"`
 	Speed         float32      `json:"speed"`
 }

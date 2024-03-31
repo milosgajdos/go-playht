@@ -25,8 +25,8 @@ type CreateTTSJobReq struct {
 	Temperature   float32      `json:"temperature,omitempty"`
 	SampleRate    int32        `json:"sample_rate"`
 	Seed          uint8        `json:"seed,omitempty"`
-	VoiceGuidance uint8        `json:"voice_guidance,omitempty"`
-	StyleGuidance uint8        `json:"style_guidance,omitempty"`
+	VoiceGuidance float32      `json:"voice_guidance,omitempty"`
+	StyleGuidance float32      `json:"style_guidance,omitempty"`
 }
 
 // TTSJob is returned when a new TTS async job has been created.
