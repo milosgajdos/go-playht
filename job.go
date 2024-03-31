@@ -190,8 +190,45 @@ func (c *Client) CreateTTSJobWithProgressStream(ctx context.Context, req *Create
 	panic("not implemented")
 }
 
-// GetTTSJobProgressStream retrieves the TTS job progress SSE stream from the job with the given id.
-// nolint:revive
+// GetTTSJobProgressStream retrieves the TTS job progress SSE stream for the job with the given id and streams it into w.
 func (c *Client) GetTTSJobProgressStream(ctx context.Context, w io.Writer, id string) error {
-	panic("not implemented")
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/tts/" + id)
+	if err != nil {
+		return err
+	}
+
+	options := []request.HTTPOption{
+		request.WithAuthSecret(c.opts.SecretKey),
+		request.WithSetHeader(UserIDHeader, c.opts.UserID),
+		request.WithAddHeader("Accept", "text/event-stream"),
+	}
+
+	req, err := request.NewHTTP(ctx, http.MethodGet, u.String(), nil, options...)
+	if err != nil {
+		return err
+	}
+
+	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		if _, err := io.Copy(w, resp.Body); err != nil {
+			return err
+		}
+		return nil
+	case http.StatusTooManyRequests:
+		return ErrTooManyRequests
+	case http.StatusInternalServerError:
+		var apiErr APIErrInternal
+		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
+			return errors.Join(err, jsonErr)
+		}
+		return apiErr
+	default:
+		return err
+	}
 }
