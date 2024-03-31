@@ -199,20 +199,59 @@ func (c *Client) GetTTSJob(ctx context.Context, id string) (*TTSJob, error) {
 	}
 }
 
-// CreateTTSEventStream creates a new Text-to-Speech (TTS) SSE stream that converts input text into audio asynchronously
+// GetTTSJobAudioStream retrieves the TTS job audio stream from the job with the given id.
+// It streams audio in the MP3 format or returns error if the file was not generated as MP3.
+func (c *Client) GetTTSJobAudioStream(ctx context.Context, w io.Writer, id string) error {
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/tts/" + id)
+	if err != nil {
+		return err
+	}
+
+	options := []request.HTTPOption{
+		request.WithAuthSecret(c.opts.SecretKey),
+		request.WithSetHeader(UserIDHeader, c.opts.UserID),
+		request.WithAddHeader("Accept", "audio/mpeg"),
+	}
+
+	req, err := request.NewHTTP(ctx, http.MethodGet, u.String(), nil, options...)
+	if err != nil {
+		return err
+	}
+
+	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		if _, err := io.Copy(w, resp.Body); err != nil {
+			return err
+		}
+		return nil
+	case http.StatusTooManyRequests:
+		return ErrTooManyRequests
+	case http.StatusInternalServerError:
+		var apiErr APIErrInternal
+		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
+			return errors.Join(err, jsonErr)
+		}
+		return apiErr
+	default:
+		return err
+	}
+}
+
+// CreateTTSJobWithProgressStream creates a new Text-to-Speech (TTS) SSE stream that converts input text into audio
+// asynchronously and returns the job progress SSE stream URL.
 // nolint:revive
-func (c *Client) CreateTTSEventStream(ctx context.Context, w io.Writer, req *CreateTTSReq) error {
+func (c *Client) CreateTTSJobWithProgressStream(ctx context.Context, req *CreateTTSReq) (string, error) {
 	panic("not implemented")
 }
 
-// GetTTSEventStream retrieves the TTS SSE stream from the job with the given id.
+// GetTTSJobProgressStream retrieves the TTS job progress SSE stream from the job with the given id.
 // nolint:revive
-func (c *Client) GetTTSEventStream(ctx context.Context, w io.Writer, id string) error {
-	panic("not implemented")
-}
-
-// GetTTSAudioStream retrieves the TTS audio stream from the job with the given id.
-// nolint:revive
-func (c *Client) GetTTSAudioStream(ctx context.Context, w io.Writer, id string) error {
+func (c *Client) GetTTSJobProgressStream(ctx context.Context, w io.Writer, id string) error {
 	panic("not implemented")
 }
