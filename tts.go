@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -129,8 +128,6 @@ func (c *Client) CreateTTSJob(ctx context.Context, createReq *CreateTTSReq) (*TT
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(req.Header)
 
 	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
 	if err != nil {
