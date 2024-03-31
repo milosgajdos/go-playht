@@ -36,7 +36,7 @@ func main() {
 	client := playht.NewClient()
 
 	if err := client.GetTTSJobAudioStream(context.Background(), f, jobID); err != nil {
-		log.Fatalf("failed getting %v job info: %v", jobID, err)
+		log.Fatalf("failed streaming %v job into %s: %v", jobID, outPath, err)
 	}
 
 	log.Printf("successfully stored audio file in %s", outPath)

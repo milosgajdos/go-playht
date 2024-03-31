@@ -12,6 +12,9 @@
 *.out
 
 *.env
+*.mp3
+*.wav
+*.ogg
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
