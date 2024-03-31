@@ -184,10 +184,59 @@ func (c *Client) GetTTSJobAudioStream(ctx context.Context, w io.Writer, id strin
 }
 
 // CreateTTSJobWithProgressStream creates a new Text-to-Speech (TTS) SSE stream that converts input text into audio
-// asynchronously and returns the job progress SSE stream URL.
-// nolint:revive
-func (c *Client) CreateTTSJobWithProgressStream(ctx context.Context, req *CreateTTSJobReq) (string, error) {
-	panic("not implemented")
+// asynchronously and returns the job progress SSE stream URL. If w is not nil, the events are streamed into it.
+func (c *Client) CreateTTSJobWithProgressStream(ctx context.Context, w io.Writer, createReq *CreateTTSJobReq) (string, error) {
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/tts")
+	if err != nil {
+		return "", err
+	}
+
+	var body = &bytes.Buffer{}
+	enc := json.NewEncoder(body)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(createReq); err != nil {
+		return "", err
+	}
+
+	options := []request.HTTPOption{
+		request.WithAuthSecret(c.opts.SecretKey),
+		request.WithSetHeader(UserIDHeader, c.opts.UserID),
+		request.WithAddHeader("Accept", "text/event-stream"),
+		request.WithSetHeader("Content-Type", "application/json"),
+	}
+
+	req, err := request.NewHTTP(ctx, http.MethodPost, u.String(), body, options...)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusCreated:
+		streamURL := resp.Header.Get("Content-Location")
+		if w != nil {
+			if _, err := io.Copy(w, resp.Body); err != nil {
+				return streamURL, err
+			}
+			return streamURL, nil
+		}
+		return streamURL, nil
+	case http.StatusTooManyRequests:
+		return "", ErrTooManyRequests
+	case http.StatusInternalServerError:
+		var apiErr APIErrInternal
+		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
+			return "", errors.Join(err, jsonErr)
+		}
+		return "", apiErr
+	default:
+		return "", err
+	}
 }
 
 // GetTTSJobProgressStream retrieves the TTS job progress SSE stream for the job with the given id and streams it into w.
