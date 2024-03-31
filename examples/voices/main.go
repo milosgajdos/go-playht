@@ -9,11 +9,13 @@ import (
 )
 
 var (
-	input string
+	input    string
+	mimeType string
 )
 
 func init() {
 	flag.StringVar(&input, "input", "", "input voice sample")
+	flag.StringVar(&mimeType, "mime-type", "", "input MIME type")
 }
 
 func main() {
@@ -39,10 +41,13 @@ func main() {
 	log.Printf("Got %d cloned voices", len(clonedVoices))
 
 	if input != "" {
+		if mimeType != "" {
+			log.Fatal("must specify input MIME type")
+		}
 		req := &playht.CloneVoiceFileRequest{
 			SampleFile: input,
 			VoiceName:  "foo-bar",
-			MimeType:   "audio/x-m4a",
+			MimeType:   mimeType,
 		}
 		cloneResp, err := client.CreateInstantVoiceCloneFromFile(context.Background(), req)
 		if err != nil {
@@ -51,7 +56,7 @@ func main() {
 		log.Printf("clone voice response: %v", cloneResp)
 
 		del := &playht.DeleteClonedVoiceRequest{
-			VoiceID: "s3://voice-cloning-zero-shot/3c3ab1f6-d42e-4d25-8660-4b31f7e1073e/foo-bar/manifest.json",
+			VoiceID: cloneResp.ID,
 		}
 
 		delResp, err := client.DeleteClonedVoice(context.Background(), del)
