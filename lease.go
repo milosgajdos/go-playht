@@ -102,7 +102,6 @@ func (c *Client) CreateLease(ctx context.Context, _ *CreateLeaseReq) (*Lease, er
 }
 
 // RefreshLease refreshes the existing Lease and returns it.
-// nolint:revive
-func (c *Client) RefreshLease(ctx context.Context, req *CreateLeaseReq) (*Lease, error) {
-	return nil, nil
+func (c *Client) RefreshLease(ctx context.Context, createReq *CreateLeaseReq) (*Lease, error) {
+	return c.CreateLease(ctx, createReq)
 }
