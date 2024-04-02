@@ -16,5 +16,10 @@ linters:
 
 run:
   deadline: 2m
+  # TODO: remove this once GHA is updated
   skip-dirs:
+    - vendor
+
+issues:
+  exlude-dirs:
     - vendor

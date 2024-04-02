@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -63,6 +64,8 @@ func Do[T error](client *client.HTTP, req *http.Request) (*http.Response, error)
 type HTTPOption func(*http.Request)
 
 // WithAuthSecret sets the Authorization header to the provided secret.
+// NOTE: this option is mutually exclusive with WithBearer
+// Using both ends up with one overriding the other!
 func WithAuthSecret(secret string) HTTPOption {
 	return func(req *http.Request) {
 		if req.Header == nil {
@@ -89,5 +92,17 @@ func WithAddHeader(key, val string) HTTPOption {
 			req.Header = make(http.Header)
 		}
 		req.Header.Add(key, val)
+	}
+}
+
+// WithBearer sets the Authorization header to the provided Bearer token.
+// NOTE: this option is mutually exclusive with WithAuthSecret
+// Using both ends up with one overriding the other!
+func WithBearer(token string) HTTPOption {
+	return func(req *http.Request) {
+		if req.Header == nil {
+			req.Header = make(http.Header)
+		}
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	}
 }
