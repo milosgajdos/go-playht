@@ -53,4 +53,4 @@ The API also allows you to clone a voice using a small sample of limited size. S
 
 # TODO
 
-* [ ] gRPC streaming
+* [ ] Lease refresh for gRPC streaming

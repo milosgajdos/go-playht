@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
+	pb "github.com/milosgajdos/go-playht/proto"
 	"github.com/milosgajdos/go-playht/request"
 )
 
@@ -21,7 +22,7 @@ type CreateTTSStreamReq struct {
 	VoiceEngine   VoiceEngine  `json:"voice_engine,omitempty"`
 	Emotion       Emotion      `json:"emotion,omitempty"`
 	SampleRate    int32        `json:"sample_rate"`
-	Seed          uint8        `json:"seed,omitempty"`
+	Seed          int32        `json:"seed,omitempty"`
 	VoiceGuidance float32      `json:"voice_guidance,omitempty"`
 	StyleGuidance float32      `json:"style_guidance,omitempty"`
 	TextGuidance  float32      `json:"text_guidance,omitempty"`
@@ -36,6 +37,27 @@ type TTSStreamURL struct {
 	CType  string `json:"contentType"`
 	Rel    string `json:"rel"`
 	Desc   string `json:"description"`
+}
+
+// TTSGrpcStream creates a new TTS stream ovr gRCP and streams the audio bytes immediately.
+func (c *Client) TTSGrpcStream(ctx context.Context, w io.Writer, req *pb.TtsRequest) error {
+	ttsc := pb.NewTtsClient(c.opts.GRPC)
+	tts, err := ttsc.Tts(ctx, req)
+	if err != nil {
+		return err
+	}
+	for {
+		resp, err := tts.Recv()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+		if _, err := io.Copy(w, bytes.NewBuffer(resp.Data)); err != nil {
+			return err
+		}
+	}
 }
 
 // TTSStream creates a new TTS stream and streams the audio bytes immediately.
