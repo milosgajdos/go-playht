@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -91,7 +92,7 @@ func (c *Client) CreateTTSJob(ctx context.Context, createReq *CreateTTSJobReq) (
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -135,7 +136,7 @@ func (c *Client) GetTTSJob(ctx context.Context, id string) (*TTSJob, error) {
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -179,7 +180,7 @@ func (c *Client) GetTTSJobAudioStream(ctx context.Context, w io.Writer, id strin
 		}
 		return apiErr
 	default:
-		return err
+		return fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -235,7 +236,7 @@ func (c *Client) CreateTTSJobWithProgressStream(ctx context.Context, w io.Writer
 		}
 		return "", apiErr
 	default:
-		return "", err
+		return "", fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -278,6 +279,6 @@ func (c *Client) GetTTSJobProgressStream(ctx context.Context, w io.Writer, id st
 		}
 		return apiErr
 	default:
-		return err
+		return fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -106,7 +107,7 @@ func (c *Client) TTSStream(ctx context.Context, w io.Writer, createReq *CreateTT
 		}
 		return apiErr
 	default:
-		return err
+		return fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -158,6 +159,6 @@ func (c *Client) TTSStreamURL(ctx context.Context, createReq *CreateTTSStreamReq
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }

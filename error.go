@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrTooManyRequests = errors.New("too many requests")
+	ErrTooManyRequests      = errors.New("too many requests")
+	ErrUnexpectedStatusCode = errors.New("unexpected status code")
 )
 
 // APIError is an API error.
