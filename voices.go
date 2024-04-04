@@ -103,7 +103,7 @@ func (c *Client) GetVoices(ctx context.Context) ([]Voice, error) {
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -146,7 +146,7 @@ func (c *Client) GetClonedVoices(ctx context.Context) ([]ClonedVoice, error) {
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -215,7 +215,7 @@ func (c *Client) CreateInstantVoiceCloneFromFile(ctx context.Context, cloneReq *
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -277,7 +277,7 @@ func (c *Client) CreateInstantVoiceCloneFromURL(ctx context.Context, cloneReq *C
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
@@ -328,7 +328,7 @@ func (c *Client) DeleteClonedVoice(ctx context.Context, delReq *DeleteClonedVoic
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 

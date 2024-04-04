@@ -97,7 +97,7 @@ func (c *Client) CreateLease(ctx context.Context, _ *CreateLeaseReq) (*Lease, er
 		}
 		return nil, apiErr
 	default:
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
 	}
 }
 
