@@ -4,11 +4,14 @@ import (
 	"os"
 
 	"github.com/milosgajdos/go-playht/client"
+	"google.golang.org/grpc"
 )
 
 const (
 	// BaseURL is OpenAI HTTP API base URL.
 	BaseURL = "https://api.play.ht/api"
+	// GrpcAddr is the default gRPC endpoint.
+	GrpcAddr = "prod.turbo.play.ht:443"
 	// APIV2 V2 version.
 	APIV2 = "v2"
 	// APIV2 V1 version.
@@ -28,6 +31,7 @@ type Options struct {
 	BaseURL    string
 	Version    string
 	HTTPClient *client.HTTP
+	GRPC       *grpc.ClientConn
 }
 
 // Option is functional graph option.
@@ -87,5 +91,12 @@ func WithVersion(version string) Option {
 func WithHTTPClient(httpClient *client.HTTP) Option {
 	return func(o *Options) {
 		o.HTTPClient = httpClient
+	}
+}
+
+// WithGRPCClient sets the gRPC client.
+func WithGRPCClient(c *grpc.ClientConn) Option {
+	return func(o *Options) {
+		o.GRPC = c
 	}
 }

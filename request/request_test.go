@@ -3,6 +3,7 @@ package request
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -44,6 +45,13 @@ func TestNewHTTPRequest(t *testing.T) {
 
 func TestHTTPReqOption(t *testing.T) {
 	t.Parallel()
+	t.Run("set bearer", func(t *testing.T) {
+		t.Parallel()
+		req := &http.Request{}
+		token := "token"
+		WithBearer(token)(req)
+		assert.Equal(t, req.Header.Get("Authorization"), fmt.Sprintf("Bearer %s", token))
+	})
 	t.Run("set authz secret", func(t *testing.T) {
 		t.Parallel()
 		req := &http.Request{}
