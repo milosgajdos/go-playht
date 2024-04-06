@@ -56,7 +56,7 @@ func (c *Client) CreateLease(ctx context.Context, _ *CreateLeaseReq) (*Lease, er
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}

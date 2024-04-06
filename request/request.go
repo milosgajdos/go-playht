@@ -11,6 +11,11 @@ import (
 	"github.com/milosgajdos/go-playht/client"
 )
 
+const (
+	// UserAgent is default User-Agent header value.
+	UserAgent = "github.com/milosgajdos/go-playht"
+)
+
 // NewHTTP creates a new HTTP request from the provided parameters and returns it.
 // If the passed in context is nil, it creates a new background context.
 // If the provided body is nil, it gets initialized to bytes.Reader.
@@ -36,6 +41,7 @@ func NewHTTP(ctx context.Context, method, url string, body io.Reader, opts ...HT
 	if ct := req.Header.Get("Content-Type"); len(ct) == 0 {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	}
+	req.Header.Set("User-Agent", UserAgent)
 
 	return req, nil
 }
@@ -60,7 +66,7 @@ func Do[T error](client *client.HTTP, req *http.Request) (*http.Response, error)
 	return nil, apiErr
 }
 
-// HTTPOption is HTTP request functional option.
+// HTTPOption is a HTTP request functional option.
 type HTTPOption func(*http.Request)
 
 // WithAuthSecret sets the Authorization header to the provided secret.

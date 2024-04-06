@@ -81,7 +81,7 @@ func (c *Client) GetVoices(ctx context.Context) ([]Voice, error) {
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *Client) GetClonedVoices(ctx context.Context) ([]ClonedVoice, error) {
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +193,7 @@ func (c *Client) CreateInstantVoiceCloneFromFile(ctx context.Context, cloneReq *
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +255,7 @@ func (c *Client) CreateInstantVoiceCloneFromURL(ctx context.Context, cloneReq *C
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +306,7 @@ func (c *Client) DeleteClonedVoice(ctx context.Context, delReq *DeleteClonedVoic
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}

@@ -30,8 +30,9 @@ type Limiter interface {
 }
 
 // DefaultTransport returns a new http.Transport
-// which is a clione of the http.DefaultTransport
-// This is to avoid accidental transport overrides.
+// which is a clone of the http.DefaultTransport.
+// This is to avoid accidental transport overrides
+// because http.DefaultTransport. is a package global.
 func DefaultTransport() *http.Transport {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	return transport
@@ -69,14 +70,14 @@ func (h *HTTP) Do(req *http.Request) (*http.Response, error) {
 	return resp, nil
 }
 
-// WithHTTPClient sets the HTTP client.
+// WithHTTPClient sets the HTTP client to c.
 func WithHTTPClient(c *http.Client) HTTPOption {
 	return func(o *HTTPOptions) {
 		o.HTTPClient = c
 	}
 }
 
-// WithLimiter sets the http rate limiter.
+// WithLimiter sets the http rate limiter to l.
 func WithLimiter(l Limiter) HTTPOption {
 	return func(o *HTTPOptions) {
 		o.Limiter = l

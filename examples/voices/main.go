@@ -41,7 +41,7 @@ func main() {
 	log.Printf("Got %d cloned voices", len(clonedVoices))
 
 	if input != "" {
-		if mimeType != "" {
+		if mimeType == "" {
 			log.Fatal("must specify input MIME type")
 		}
 		req := &playht.CloneVoiceFileRequest{

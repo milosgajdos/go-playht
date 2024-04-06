@@ -70,7 +70,7 @@ func (c *Client) CreateTTSJob(ctx context.Context, createReq *CreateTTSJobReq) (
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (c *Client) GetTTSJob(ctx context.Context, id string) (*TTSJob, error) {
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (c *Client) GetTTSJobAudioStream(ctx context.Context, w io.Writer, id strin
 		return err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func (c *Client) CreateTTSJobWithProgressStream(ctx context.Context, w io.Writer
 		return "", err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return "", err
 	}
@@ -258,7 +258,7 @@ func (c *Client) GetTTSJobProgressStream(ctx context.Context, w io.Writer, id st
 		return err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return err
 	}
