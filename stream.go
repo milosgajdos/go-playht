@@ -86,7 +86,7 @@ func (c *Client) TTSStream(ctx context.Context, w io.Writer, createReq *CreateTT
 		return err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func (c *Client) TTSStreamURL(ctx context.Context, createReq *CreateTTSStreamReq
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}

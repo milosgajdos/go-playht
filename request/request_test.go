@@ -39,6 +39,9 @@ func TestNewHTTPRequest(t *testing.T) {
 		header := make(http.Header)
 		header.Set("Content-Type", "application/json; charset=utf-8")
 		header.Set("Authorization", secret)
+		// NOTE: this header is set by default
+		// on every request we create via NewHTTP.
+		header.Set("User-Agent", UserAgent)
 		assert.Equal(t, req.Header, header)
 	})
 }
