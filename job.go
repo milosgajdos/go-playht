@@ -30,6 +30,14 @@ type CreateTTSJobReq struct {
 	StyleGuidance float32      `json:"style_guidance,omitempty"`
 }
 
+type Link struct {
+	ContentType string `json:"content_type,omitempty"`
+	Description string `json:"description,omitempty"`
+	Href        string `json:"href,omitempty"`
+	Method      string `json:"method,omitempty"`
+	Rel         string `json:"rel,omitempty"`
+}
+
 // TTSJob is returned when a new TTS async job has been created.
 type TTSJob struct {
 	ID      string           `json:"id"`
@@ -40,8 +48,8 @@ type TTSJob struct {
 		URL      string  `json:"url"`
 		Duration float64 `json:"duration"`
 	} `json:"output"`
-	// NOTE: this does not seem to work in line with the docs
-	//Links []string `json:"_links,omitempty"`
+	Status string `json:"status,omitempty"`
+	Links  []Link `json:"_links,omitempty"`
 }
 
 // CreateTTSJob creates a new Text-to-Speech (TTS) job that converts input text into audio asynchronously
