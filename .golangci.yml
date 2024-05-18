@@ -5,7 +5,7 @@ linters:
     - gofmt
     - revive
     - ineffassign
-    - vet
+    - govet
     - unused
     - misspell
     - bodyclose
@@ -13,12 +13,6 @@ linters:
     - goimports
     - prealloc
     - tparallel
-
-run:
-  deadline: 2m
-  # TODO: remove this once GHA is updated
-  skip-dirs:
-    - vendor
 
 issues:
   exlude-dirs:
