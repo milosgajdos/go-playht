@@ -159,7 +159,6 @@ func (c *Client) GetTTSJobAudioStream(ctx context.Context, w io.Writer, id strin
 	options := []request.HTTPOption{
 		request.WithAuthSecret(c.opts.SecretKey),
 		request.WithSetHeader(UserIDHeader, c.opts.UserID),
-		request.WithAddHeader("Accept", "audio/mpeg"),
 	}
 
 	req, err := request.NewHTTP(ctx, http.MethodGet, u.String(), nil, options...)
