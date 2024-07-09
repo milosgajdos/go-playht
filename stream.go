@@ -78,7 +78,6 @@ func (c *Client) TTSStream(ctx context.Context, w io.Writer, createReq *CreateTT
 	options := []request.HTTPOption{
 		request.WithAuthSecret(c.opts.SecretKey),
 		request.WithSetHeader(UserIDHeader, c.opts.UserID),
-		request.WithAddHeader("Accept", "audio/mpeg"),
 		request.WithSetHeader("Content-Type", "application/json"),
 	}
 
