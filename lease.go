@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -56,49 +55,36 @@ func (c *Client) CreateLease(ctx context.Context, _ *CreateLeaseReq) (*Lease, er
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusCreated:
-		data, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		var created, duration int32
-		buf := bytes.NewReader(data[64:68])
-		if err := binary.Read(buf, binary.BigEndian, &created); err != nil {
-			return nil, fmt.Errorf("failed reading created data: %v", err)
-		}
-		buf = bytes.NewReader(data[68:72])
-		if err := binary.Read(buf, binary.BigEndian, &duration); err != nil {
-			return nil, fmt.Errorf("failed reading duration data: %v", err)
-		}
-		md := map[string]any{}
-		if err := json.Unmarshal(data[72:], &md); err != nil {
-			return nil, fmt.Errorf("failed reading lease metadata: %v", err)
-		}
-
-		return &Lease{
-			Data:     data,
-			Created:  time.Unix(HTEpoch, 0).Add(time.Duration(created) * time.Second),
-			Duration: time.Duration(duration) * time.Second,
-			Metadata: md,
-		}, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
+	var created, duration int32
+	buf := bytes.NewReader(data[64:68])
+	if err := binary.Read(buf, binary.BigEndian, &created); err != nil {
+		return nil, fmt.Errorf("failed reading created data: %v", err)
+	}
+	buf = bytes.NewReader(data[68:72])
+	if err := binary.Read(buf, binary.BigEndian, &duration); err != nil {
+		return nil, fmt.Errorf("failed reading duration data: %v", err)
+	}
+	md := map[string]any{}
+	if err := json.Unmarshal(data[72:], &md); err != nil {
+		return nil, fmt.Errorf("failed reading lease metadata: %v", err)
+	}
+
+	return &Lease{
+		Data:     data,
+		Created:  time.Unix(HTEpoch, 0).Add(time.Duration(created) * time.Second),
+		Duration: time.Duration(duration) * time.Second,
+		Metadata: md,
+	}, nil
 }
 
 // RefreshLease refreshes the existing Lease and returns it.

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -81,30 +80,17 @@ func (c *Client) GetVoices(ctx context.Context) ([]Voice, error) {
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		var voices []Voice
-		if err := json.NewDecoder(resp.Body).Decode(&voices); err != nil {
-			return nil, err
-		}
-		return voices, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	var voices []Voice
+	if err := json.NewDecoder(resp.Body).Decode(&voices); err != nil {
+		return nil, err
 	}
+	return voices, nil
 }
 
 // GetClonedVoices obtains a list of all cloned voices created by the user.
@@ -124,30 +110,17 @@ func (c *Client) GetClonedVoices(ctx context.Context) ([]ClonedVoice, error) {
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		var voices []ClonedVoice
-		if err := json.NewDecoder(resp.Body).Decode(&voices); err != nil {
-			return nil, err
-		}
-		return voices, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	var voices []ClonedVoice
+	if err := json.NewDecoder(resp.Body).Decode(&voices); err != nil {
+		return nil, err
 	}
+	return voices, nil
 }
 
 // CreateInstantVoiceCloneFromFile creates an instant voice clone by providing a sample audio file via file upload.
@@ -193,30 +166,17 @@ func (c *Client) CreateInstantVoiceCloneFromFile(ctx context.Context, cloneReq *
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusCreated:
-		cloneVoiceResp := new(ClonedVoice)
-		if err := json.NewDecoder(resp.Body).Decode(cloneVoiceResp); err != nil {
-			return nil, err
-		}
-		return cloneVoiceResp, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	cloneVoiceResp := new(ClonedVoice)
+	if err := json.NewDecoder(resp.Body).Decode(cloneVoiceResp); err != nil {
+		return nil, err
 	}
+	return cloneVoiceResp, nil
 }
 
 // CreateInstantVoiceCloneFromURL create an instant voice clone by providing an URL for a sample audio file.
@@ -255,30 +215,17 @@ func (c *Client) CreateInstantVoiceCloneFromURL(ctx context.Context, cloneReq *C
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusCreated:
-		cloneVoiceResp := new(ClonedVoice)
-		if err := json.NewDecoder(resp.Body).Decode(cloneVoiceResp); err != nil {
-			return nil, err
-		}
-		return cloneVoiceResp, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	cloneVoiceResp := new(ClonedVoice)
+	if err := json.NewDecoder(resp.Body).Decode(cloneVoiceResp); err != nil {
+		return nil, err
 	}
+	return cloneVoiceResp, nil
 }
 
 // DeleteClonedVoice eletes a cloned voice created by the user using the provided voice_id.
@@ -306,30 +253,17 @@ func (c *Client) DeleteClonedVoice(ctx context.Context, delReq *DeleteClonedVoic
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		delVoiceResp := new(DeleteClonedVoiceResp)
-		if err := json.NewDecoder(resp.Body).Decode(delVoiceResp); err != nil {
-			return nil, err
-		}
-		return delVoiceResp, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	delVoiceResp := new(DeleteClonedVoiceResp)
+	if err := json.NewDecoder(resp.Body).Decode(delVoiceResp); err != nil {
+		return nil, err
 	}
+	return delVoiceResp, nil
 }
 
 func createFilePart(w *multipart.Writer, fieldname, filename, mimeType string) (io.Writer, error) {
