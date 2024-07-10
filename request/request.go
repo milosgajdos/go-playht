@@ -55,16 +55,10 @@ func Do[T error](client *client.HTTP, req *http.Request) (*http.Response, error)
 	if resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusBadRequest {
 		return resp, nil
 	}
-	defer resp.Body.Close()
-
-	buf := &bytes.Buffer{}
-	body := io.TeeReader(resp.Body, buf)
 
 	var apiErr T
-	if jsonErr := json.NewDecoder(body).Decode(&apiErr); jsonErr != nil {
-		// NOTE: return the original error
-		resp.Body = io.NopCloser(buf)
-		return resp, err
+	if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
+		return nil, jsonErr
 	}
 
 	return nil, apiErr

@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -86,29 +84,16 @@ func (c *Client) TTSStream(ctx context.Context, w io.Writer, createReq *CreateTT
 		return err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		if _, err := io.Copy(w, resp.Body); err != nil {
-			return err
-		}
-		return nil
-	case http.StatusTooManyRequests:
-		return ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return errors.Join(err, jsonErr)
-		}
-		return apiErr
-	default:
-		return fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		return err
 	}
+	return nil
 }
 
 // TTSStreamURL creates a new TTS stream and returns data containing an URL that is immediately streamable.
@@ -137,28 +122,15 @@ func (c *Client) TTSStreamURL(ctx context.Context, createReq *CreateTTSStreamReq
 		return nil, err
 	}
 
-	resp, err := request.Do[APIErrGen](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusCreated:
-		ttsResp := new(TTSStreamURL)
-		if err := json.NewDecoder(resp.Body).Decode(ttsResp); err != nil {
-			return nil, err
-		}
-		return ttsResp, nil
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusInternalServerError:
-		var apiErr APIErrInternal
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	ttsResp := new(TTSStreamURL)
+	if err := json.NewDecoder(resp.Body).Decode(ttsResp); err != nil {
+		return nil, err
 	}
+	return ttsResp, nil
 }
